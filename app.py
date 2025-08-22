@@ -5,25 +5,21 @@ import shap
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-# ------------------------
-# Load model + features
-# ------------------------
 @st.cache_resource
 def load_model():
     return joblib.load("churn_xgb_model.pkl")
 
 @st.cache_resource
 def load_features():
-    return joblib.load("features.pkl")  # saved during training
+    return joblib.load("features.pkl")  
 
 model = load_model()
 feature_names = load_features()
 
 st.title("Telco Churn Prediction Dashboard")
 
-# ------------------------
+
 # Preprocessing
-# ------------------------
 def preprocess_input(df):
     drop_cols = ["customer_id"]
     df = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
@@ -41,9 +37,7 @@ def preprocess_input(df):
 
     return df
 
-# ------------------------
-# File upload
-# ------------------------
+
 uploaded_file = st.file_uploader("Upload a CSV file with customer data", type=["csv"])
 
 if uploaded_file:
@@ -66,9 +60,7 @@ if uploaded_file:
     churn_rate = results["Churn_Prediction"].mean() * 100
     st.metric("Predicted Churn Rate", f"{churn_rate:.2f}%")
 
-    # ------------------------
-    # 📊 Charts
-    # ------------------------
+    # Charts
     st.subheader("Churn Distribution")
     fig1 = px.histogram(results, x="Churn_Prediction", color="Churn_Prediction",
                         labels={"Churn_Prediction": "Churn (0=No, 1=Yes)"})
@@ -85,9 +77,7 @@ if uploaded_file:
                             barmode="group", title="Churn by Contract Type")
         st.plotly_chart(fig3, use_container_width=True)
 
-    # ------------------------
     # SHAP Global Explainability
-    # ------------------------
     st.subheader("Global Feature Importance (SHAP)")
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(df)
@@ -101,9 +91,7 @@ if uploaded_file:
     shap.summary_plot(shap_values, df, show=False)
     st.pyplot(fig2)
 
-    # ------------------------
     # Customer Drilldown
-    # ------------------------
     st.subheader("Customer Drilldown Analysis")
 
     # Select customer by index
